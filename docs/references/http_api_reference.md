@@ -1,7 +1,11 @@
+---
+sidebar_position: 1
+slug: /http_api_reference
+---
 
-# DRAFT! HTTP API Reference
+# HTTP API Reference
 
-**THE API REFERENCES BELOW ARE STILL UNDER DEVELOPMENT.**
+A complete reference for RAGFlow's RESTful API. Before proceeding, please ensure you [have your RAGFlow API key ready for authentication](../guides/develop/acquire_ragflow_api_key.md).
 
 ---
 
@@ -23,7 +27,7 @@ Creates a dataset.
 - URL: `/api/v1/datasets`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"name"`: `string`
   - `"avatar"`: `string`
@@ -40,7 +44,7 @@ Creates a dataset.
 curl --request POST \
      --url http://{address}/api/v1/datasets \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '{
       "name": "test_1"
       }'
@@ -59,14 +63,14 @@ curl --request POST \
   - Case-insensitive.
 
 - `"avatar"`: (*Body parameter*), `string`  
-    Base64 encoding of the avatar.
+  Base64 encoding of the avatar.
 
 - `"description"`: (*Body parameter*), `string`  
   A brief description of the dataset to create.
 
 - `"language"`: (*Body parameter*), `string`  
   The language setting of the dataset to create. Available options:  
-  - `"English"` (Default)
+  - `"English"` (default)
   - `"Chinese"`
 
 - `"embedding_model"`: (*Body parameter*), `string`  
@@ -78,7 +82,7 @@ curl --request POST \
 - `"chunk_method"`: (*Body parameter*), `enum<string>`  
   The chunking method of the dataset to create. Available options:  
   - `"naive"`: General (default)
-  - `"manual`: Manual
+  - `"manual"`: Manual
   - `"qa"`: Q&A
   - `"table"`: Table
   - `"paper"`: Paper
@@ -87,17 +91,26 @@ curl --request POST \
   - `"presentation"`: Presentation
   - `"picture"`: Picture
   - `"one"`: One
-  - `"knowledge_graph"`: Knowledge Graph
+  - `"knowledge_graph"`: Knowledge Graph  
+    Ensure your LLM is properly configured on the **Settings** page before selecting this. Please also note that Knowledge Graph consumes a large number of Tokens!
   - `"email"`: Email
 
 - `"parser_config"`: (*Body parameter*), `object`  
-  The configuration settings for the dataset parser, a JSON object containing the following attributes:
-  - `"chunk_token_count"`: Defaults to `128`.
-  - `"layout_recognize"`: Defaults to `true`.
-  - `"html4excel"`: Indicates whether to convert Excel documents into HTML format. Defaults to `false`.
-  - `"delimiter"`: Defaults to `"\n!?。；！？"`.
-  - `"task_page_size"`: Defaults to `12`. For PDF only.
-  - `"raptor"`: Raptor-specific settings. Defaults to: `{"use_raptor": false}`.
+  The configuration settings for the dataset parser. The attributes in this JSON object vary with the selected `"chunk_method"`:  
+  - If `"chunk_method"` is `"naive"`, the `"parser_config"` object contains the following attributes:
+    - `"chunk_token_count"`: Defaults to `128`.
+    - `"layout_recognize"`: Defaults to `true`.
+    - `"html4excel"`: Indicates whether to convert Excel documents into HTML format. Defaults to `false`.
+    - `"delimiter"`: Defaults to `"\n!?。；！？"`.
+    - `"task_page_size"`: Defaults to `12`. For PDF only.
+    - `"raptor"`: Raptor-specific settings. Defaults to: `{"use_raptor": false}`.
+  - If `"chunk_method"` is `"qa"`, `"manuel"`, `"paper"`, `"book"`, `"laws"`, or `"presentation"`, the `"parser_config"` object contains the following attribute:  
+    - `"raptor"`: Raptor-specific settings. Defaults to: `{"use_raptor": false}`.
+  - If `"chunk_method"` is `"table"`, `"picture"`, `"one"`, or `"email"`, `"parser_config"` is an empty JSON object.
+  - If `"chunk_method"` is `"knowledge_graph"`, the `"parser_config"` object contains the following attributes:  
+    - `"chunk_token_count"`: Defaults to `128`.
+    - `"delimiter"`: Defaults to `"\n!?。；！？"`.
+    - `"entity_types"`: Defaults to `["organization","person","location","event","time"]`
 
 ### Response
 
@@ -163,7 +176,7 @@ Deletes datasets by ID.
 - URL: `/api/v1/datasets`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
   - Body:
     - `"ids"`: `list[string]`
 
@@ -173,7 +186,7 @@ Deletes datasets by ID.
 curl --request DELETE \
      --url http://{address}/api/v1/datasets \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '{"ids": ["test_1", "test_2"]}'
 ```
 
@@ -215,7 +228,7 @@ Updates configurations for a specified dataset.
 - URL: `/api/v1/datasets/{dataset_id}`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"name"`: `string`
   - `"embedding_model"`: `string`
@@ -227,7 +240,7 @@ Updates configurations for a specified dataset.
 curl --request PUT \
      --url http://{address}/api/v1/datasets/{dataset_id} \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "name": "updated_dataset",
@@ -255,8 +268,9 @@ curl --request PUT \
   - `"presentation"`: Presentation
   - `"picture"`: Picture
   - `"one"`:One
-  - `"knowledge_graph"`: Knowledge Graph
   - `"email"`: Email
+  - `"knowledge_graph"`: Knowledge Graph  
+    Ensure your LLM is properly configured on the **Settings** page before selecting this. Please also note that Knowledge Graph consumes a large number of Tokens!
 
 ### Response
 
@@ -290,14 +304,14 @@ Lists datasets.
 - Method: GET
 - URL: `/api/v1/datasets?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&name={dataset_name}&id={dataset_id}`
 - Headers:
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 
 #### Request example
 
 ```bash
 curl --request GET \
      --url http://{address}/api/v1/datasets?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&name={dataset_name}&id={dataset_id} \
-     --header 'Authorization: Bearer {YOUR_API_KEY}'
+     --header 'Authorization: Bearer <YOUR_API_KEY>'
 ```
 
 #### Request parameters
@@ -305,7 +319,7 @@ curl --request GET \
 - `page`: (*Filter parameter*)  
   Specifies the page on which the datasets will be displayed. Defaults to `1`.
 - `page_size`: (*Filter parameter*)  
-  The number of datasets on each page. Defaults to `1024`.
+  The number of datasets on each page. Defaults to `30`.
 - `orderby`: (*Filter parameter*)  
   The field by which datasets should be sorted. Available options:
   - `create_time` (default)
@@ -361,7 +375,7 @@ Success:
     ]
 }
 ```
-  
+
 Failure:
 
 ```json
@@ -391,7 +405,7 @@ Uploads documents to a specified dataset.
 - URL: `/api/v1/datasets/{dataset_id}/documents`
 - Headers:
   - `'Content-Type: multipart/form-data'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Form:
   - `'file=@{FILE_PATH}'`
 
@@ -401,7 +415,7 @@ Uploads documents to a specified dataset.
 curl --request POST \
      --url http://{address}/api/v1/datasets/{dataset_id}/documents \
      --header 'Content-Type: multipart/form-data' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \     
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \     
      --form 'file=@./test1.txt' \
      --form 'file=@./test2.pdf'
 ```
@@ -469,7 +483,7 @@ Updates configurations for a specified document.
 - URL: `/api/v1/datasets/{dataset_id}/documents/{document_id}`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"name"`:`string`
   - `"chunk_method"`:`string`
@@ -480,7 +494,7 @@ Updates configurations for a specified document.
 ```bash
 curl --request PUT \
      --url http://{address}/api/v1/datasets/{dataset_id}/info/{document_id} \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --header 'Content-Type: application/json' \
      --data '
      {
@@ -510,14 +524,25 @@ curl --request PUT \
   - `"presentation"`: Presentation
   - `"picture"`: Picture
   - `"one"`: One
-  - `"knowledge_graph"`: Knowledge Graph
+  - `"knowledge_graph"`: Knowledge Graph  
+    Ensure your LLM is properly configured on the **Settings** page before selecting this. Please also note that Knowledge Graph consumes a large number of Tokens!
   - `"email"`: Email
 - `"parser_config"`: (*Body parameter*), `object`  
-  The parsing configuration for the document:  
-  - `"chunk_token_count"`: Defaults to `128`.
-  - `"layout_recognize"`: Defaults to `true`.
-  - `"delimiter"`: Defaults to `"\n!?。；！？"`.
-  - `"task_page_size"`: Defaults to `12`. For PDF only.
+  The configuration settings for the dataset parser. The attributes in this JSON object vary with the selected `"chunk_method"`:  
+  - If `"chunk_method"` is `"naive"`, the `"parser_config"` object contains the following attributes:
+    - `"chunk_token_count"`: Defaults to `128`.
+    - `"layout_recognize"`: Defaults to `true`.
+    - `"html4excel"`: Indicates whether to convert Excel documents into HTML format. Defaults to `false`.
+    - `"delimiter"`: Defaults to `"\n!?。；！？"`.
+    - `"task_page_size"`: Defaults to `12`. For PDF only.
+    - `"raptor"`: Raptor-specific settings. Defaults to: `{"use_raptor": false}`.
+  - If `"chunk_method"` is `"qa"`, `"manuel"`, `"paper"`, `"book"`, `"laws"`, or `"presentation"`, the `"parser_config"` object contains the following attribute:
+    - `"raptor"`: Raptor-specific settings. Defaults to: `{"use_raptor": false}`.
+  - If `"chunk_method"` is `"table"`, `"picture"`, `"one"`, or `"email"`, `"parser_config"` is an empty JSON object.
+  - If `"chunk_method"` is `"knowledge_graph"`, the `"parser_config"` object contains the following attributes:
+    - `"chunk_token_count"`: Defaults to `128`.
+    - `"delimiter"`: Defaults to `"\n!?。；！？"`.
+    - `"entity_types"`: Defaults to `["organization","person","location","event","time"]`
 
 ### Response
 
@@ -528,7 +553,7 @@ Success:
     "code": 0
 }
 ```
-  
+
 Failure:
 
 ```json
@@ -551,7 +576,7 @@ Downloads a document from a specified dataset.
 - Method: GET
 - URL: `/api/v1/datasets/{dataset_id}/documents/{document_id}`
 - Headers:
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Output:
   - `'{PATH_TO_THE_FILE}'`
 
@@ -560,7 +585,7 @@ Downloads a document from a specified dataset.
 ```bash
 curl --request GET \
      --url http://{address}/api/v1/datasets/{dataset_id}/documents/{document_id} \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --output ./ragflow.txt
 ```
 
@@ -592,24 +617,24 @@ Failure:
 
 ## List documents
 
-**GET** `/api/v1/datasets/{dataset_id}/documents?offset={offset}&limit={limit}&orderby={orderby}&desc={desc}&keywords={keywords}&id={document_id}`
+**GET** `/api/v1/datasets/{dataset_id}/documents?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&keywords={keywords}&id={document_id}&name={document_name}`
 
 Lists documents in a specified dataset.
 
 ### Request
 
 - Method: GET
-- URL: `/api/v1/datasets/{dataset_id}/documents?keywords={keyword}&page={page}&page_size={limit}&orderby={orderby}&desc={desc}&name={name}`
+- URL: `/api/v1/datasets/{dataset_id}/documents?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&keywords={keywords}&id={document_id}&name={document_name}`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 
 #### Request example
 
 ```bash
 curl --request GET \
-     --url http://{address}/api/v1/datasets/{dataset_id}/documents?keywords={keywords}&offset={offset}&limit={limit}&orderby={orderby}&desc={desc}&id={document_id} \
-     --header 'Authorization: Bearer {YOUR_API_KEY}'
+     --url http://{address}/api/v1/datasets/{dataset_id}/documents?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&keywords={keywords}&id={document_id}&name={document_name} \
+     --header 'Authorization: Bearer <YOUR_API_KEY>'
 ```
 
 #### Request parameters
@@ -618,10 +643,10 @@ curl --request GET \
   The associated dataset ID.
 - `keywords`: (*Filter parameter*), `string`  
   The keywords used to match document titles.
-- `offset`: (*Filter parameter*), `integer`  
-  The starting index for the documents to retrieve. Typically used in conjunction with `limit`. Defaults to `1`.
-- `limit`: (*Filter parameter*), `integer`  
-  The maximum number of documents to retrieve. Defaults to `1024`.
+- `page`: (*Filter parameter*), `integer`
+  Specifies the page on which the documents will be displayed. Defaults to `1`.
+- `page_size`: (*Filter parameter*), `integer`  
+  The maximum number of documents on each page. Defaults to `30`.
 - `orderby`: (*Filter parameter*), `string`  
   The field by which documents should be sorted. Available options:
   - `create_time` (default)
@@ -655,7 +680,7 @@ Success:
                     "layout_recognize": true,
                     "task_page_size": 12
                 },
-                "parser_method": "naive",
+                "chunk_method": "naive",
                 "process_begin_at": null,
                 "process_duation": 0.0,
                 "progress": 0.0,
@@ -699,7 +724,7 @@ Deletes documents by ID.
 - URL: `/api/v1/datasets/{dataset_id}/documents`
 - Headers:
   - `'Content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"ids"`: `list[string]`
 
@@ -709,7 +734,7 @@ Deletes documents by ID.
 curl --request DELETE \
      --url http://{address}/api/v1/datasets/{dataset_id}/documents \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: {YOUR_API_KEY}' \
+     --header 'Authorization: <YOUR_API_KEY>' \
      --data '
      {
           "ids": ["id_1","id_2"]
@@ -756,7 +781,7 @@ Parses documents in a specified dataset.
 - URL: `/api/v1/datasets/{dataset_id}/chunks`
 - Headers:
   - `'content-Type: application/json'`
-  - 'Authorization: Bearer {YOUR_API_KEY}'
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"document_ids"`: `list[string]`
 
@@ -766,7 +791,7 @@ Parses documents in a specified dataset.
 curl --request POST \
      --url http://{address}/api/v1/datasets/{dataset_id}/chunks \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "document_ids": ["97a5f1c2759811efaa500242ac120004","97ad64b6759811ef9fc30242ac120004"]
@@ -789,7 +814,7 @@ Success:
     "code": 0
 }
 ```
-  
+
 Failure:
 
 ```json
@@ -813,7 +838,7 @@ Stops parsing specified documents.
 - URL: `/api/v1/datasets/{dataset_id}/chunks`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"document_ids"`: `list[string]`
 
@@ -823,7 +848,7 @@ Stops parsing specified documents.
 curl --request DELETE \
      --url http://{address}/api/v1/datasets/{dataset_id}/chunks \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "document_ids": ["97a5f1c2759811efaa500242ac120004","97ad64b6759811ef9fc30242ac120004"]
@@ -846,7 +871,7 @@ Success:
     "code": 0
 }
 ```
-  
+
 Failure:
 
 ```json
@@ -870,7 +895,7 @@ Adds a chunk to a specified document in a specified dataset.
 - URL: `/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"content"`: `string`
   - `"important_keywords"`: `list[string]`
@@ -881,7 +906,7 @@ Adds a chunk to a specified document in a specified dataset.
 curl --request POST \
      --url http://{address}/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "content": "<SOME_CHUNK_CONTENT_HERE>"
@@ -935,23 +960,23 @@ Failure:
 
 ## List chunks
 
-**GET** `/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks?keywords={keywords}&offset={offset}&limit={limit}&id={id}`
+**GET** `/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks?keywords={keywords}&page={page}&page_size={page_size}&id={id}`
 
 Lists chunks in a specified document.
 
 ### Request
 
 - Method: GET
-- URL: `/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks?keywords={keywords}&offset={offset}&limit={limit}&id={chunk_id}`
+- URL: `/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks?keywords={keywords}&page={page}&page_size={page_size}&id={chunk_id}`
 - Headers:
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 
 #### Request example
 
 ```bash
 curl --request GET \
-     --url http://{address}/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks?keywords={keywords}&offset={offset}&limit={limit}&id={chunk_id} \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' 
+     --url http://{address}/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks?keywords={keywords}&page={page}&page_size={page_size}&id={chunk_id} \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' 
 ```
 
 #### Request parameters
@@ -962,10 +987,10 @@ curl --request GET \
   The associated document ID.
 - `keywords`(*Filter parameter*), `string`  
   The keywords used to match chunk content.
-- `offset`(*Filter parameter*), `string`  
-  The starting index for the chunks to retrieve. Defaults to `1`.
-- `limit`(*Filter parameter*), `integer`  
-  The maximum number of chunks to retrieve.  Default: `1024`
+- `page`(*Filter parameter*), `integer`  
+  Specifies the page on which the chunks will be displayed. Defaults to `1`.
+- `page_size`(*Filter parameter*), `integer`  
+  The maximum number of chunks on each page. Defaults to `1024`.
 - `id`(*Filter parameter*), `string`  
   The ID of the chunk to retrieve.
 
@@ -1028,7 +1053,7 @@ Success:
     }
 }
 ```
-  
+
 Failure:
 
 ```json
@@ -1052,7 +1077,7 @@ Deletes chunks by ID.
 - URL: `/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"chunk_ids"`: `list[string]`
 
@@ -1062,7 +1087,7 @@ Deletes chunks by ID.
 curl --request DELETE \
      --url http://{address}/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "chunk_ids": ["test_1", "test_2"]
@@ -1111,11 +1136,11 @@ Updates content or configurations for a specified chunk.
 - URL: `/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks/{chunk_id}`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"content"`: `string`
-  - `"important_keywords"`: `string`
-  - `"available"`: `integer`
+  - `"important_keywords"`: `list[string]`
+  - `"available"`: `boolean`
 
 #### Request example
 
@@ -1123,7 +1148,7 @@ Updates content or configurations for a specified chunk.
 curl --request PUT \
      --url http://{address}/api/v1/datasets/{dataset_id}/documents/{document_id}/chunks/{chunk_id} \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: {YOUR_API_KEY}' \
+     --header 'Authorization: <YOUR_API_KEY>' \
      --data '
      {   
           "content": "ragflow123",  
@@ -1181,13 +1206,13 @@ Retrieves chunks from specified datasets.
 - URL: `/api/v1/retrieval`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"question"`: `string`  
   - `"dataset_ids"`: `list[string]`  
   - `"document_ids"`: `list[string]`
-  - `"offset"`: `integer`  
-  - `"limit"`: `integer`  
+  - `"page"`: `integer`  
+  - `"page_size"`: `integer`  
   - `"similarity_threshold"`: `float`  
   - `"vector_similarity_weight"`: `float`  
   - `"top_k"`: `integer`  
@@ -1201,7 +1226,7 @@ Retrieves chunks from specified datasets.
 curl --request POST \
      --url http://{address}/api/v1/retrieval \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: {YOUR_API_KEY}' \
+     --header 'Authorization: <YOUR_API_KEY>' \
      --data '
      {
           "question": "What is advantage of ragflow?",
@@ -1218,10 +1243,10 @@ curl --request POST \
   The IDs of the datasets to search. If you do not set this argument, ensure that you set `"document_ids"`.
 - `"document_ids"`: (*Body parameter*), `list[string]`  
   The IDs of the documents to search. Ensure that all selected documents use the same embedding model. Otherwise, an error will occur. If you do not set this argument, ensure that you set `"dataset_ids"`.
-- `"offset"`: (*Body parameter*), `integer`  
-  The starting index for the documents to retrieve. Defaults to `1`.
-- `"limit"`: (*Body parameter*)  
-  The maximum number of chunks to retrieve. Defaults to `1024`.
+- `"page"`: (*Body parameter*), `integer`  
+  Specifies the page on which the chunks will be displayed. Defaults to `1`.
+- `"page_size"`: (*Body parameter*)  
+  The maximum number of chunks on each page. Defaults to `30`.
 - `"similarity_threshold"`: (*Body parameter*)  
   The minimum similarity score. Defaults to `0.2`.
 - `"vector_similarity_weight"`: (*Body parameter*), `float`  
@@ -1309,7 +1334,7 @@ Creates a chat assistant.
 - URL: `/api/v1/chats`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"name"`: `string`
   - `"avatar"`: `string`
@@ -1323,7 +1348,7 @@ Creates a chat assistant.
 curl --request POST \
      --url http://{address}/api/v1/chats \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}'
+     --header 'Authorization: Bearer <YOUR_API_KEY>'
      --data '{
     "dataset_ids": ["0b2cbc8c877f11ef89070242ac120005"],
     "name":"new_chat_1"
@@ -1365,10 +1390,7 @@ curl --request POST \
   - `"empty_response"`: `string` If nothing is retrieved in the dataset for the user's question, this will be used as the response. To allow the LLM to improvise when nothing is found, leave this blank.
   - `"opener"`: `string` The opening greeting for the user. Defaults to `"Hi! I am your assistant, can I help you?"`.
   - `"show_quote`: `boolean` Indicates whether the source of text should be displayed. Defaults to `true`.
-  - `"prompt"`: `string` The prompt content. Defaults to `You are an intelligent assistant. Please summarize the content of the dataset to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence "The answer you are looking for is not found in the knowledge base!" Answers need to consider chat history.
-      Here is the knowledge base:
-      {knowledge}
-      The above is the knowledge base.`
+  - `"prompt"`: `string` The prompt content.
 
 ### Response
 
@@ -1401,7 +1423,7 @@ Success:
             "empty_response": "Sorry! No relevant content was found in the knowledge base!",
             "keywords_similarity_weight": 0.3,
             "opener": "Hi! I'm your assistant, what can I do for you?",
-            "prompt": "You are an intelligent assistant. Please summarize the content of the knowledge base to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence \"The answer you are looking for is not found in the knowledge base!\" Answers need to consider chat history.\n      Here is the knowledge base:\n      {knowledge}\n      The above is the knowledge base.",
+            "prompt": "You are an intelligent assistant. Please summarize the content of the knowledge base to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence \"The answer you are looking for is not found in the knowledge base!\" Answers need to consider chat history.\n ",
             "rerank_model": "",
             "similarity_threshold": 0.2,
             "top_n": 6,
@@ -1445,21 +1467,21 @@ Updates configurations for a specified chat assistant.
 - URL: `/api/v1/chats/{chat_id}`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"name"`: `string`
   - `"avatar"`: `string`
   - `"dataset_ids"`: `list[string]`
   - `"llm"`: `object`
   - `"prompt"`: `object`
-  
+
 #### Request example
 
 ```bash
 curl --request PUT \
      --url http://{address}/api/v1/chats/{chat_id} \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "name":"Test"
@@ -1503,10 +1525,7 @@ curl --request PUT \
   - `"empty_response"`: `string` If nothing is retrieved in the dataset for the user's question, this will be used as the response. To allow the LLM to improvise when nothing is found, leave this blank.
   - `"opener"`: `string` The opening greeting for the user. Defaults to `"Hi! I am your assistant, can I help you?"`.
   - `"show_quote`: `boolean` Indicates whether the source of text should be displayed. Defaults to `true`.
-  - `"prompt"`: `string` The prompt content. Defaults to `You are an intelligent assistant. Please summarize the content of the dataset to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence "The answer you are looking for is not found in the knowledge base!" Answers need to consider chat history.
-      Here is the knowledge base:
-      {knowledge}
-      The above is the knowledge base.`
+  - `"prompt"`: `string` The prompt content.
 
 ### Response
 
@@ -1541,7 +1560,7 @@ Deletes chat assistants by ID.
 - URL: `/api/v1/chats`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"ids"`: `list[string]`
 
@@ -1551,7 +1570,7 @@ Deletes chat assistants by ID.
 curl --request DELETE \
      --url http://{address}/api/v1/chats \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "ids": ["test_1", "test_2"]
@@ -1595,14 +1614,14 @@ Lists chat assistants.
 - Method: GET
 - URL: `/api/v1/chats?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&name={dataset_name}&id={dataset_id}`
 - Headers:
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 
 #### Request example
 
 ```bash
 curl --request GET \
      --url http://{address}/api/v1/chats?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&name={dataset_name}&id={dataset_id} \
-     --header 'Authorization: Bearer {YOUR_API_KEY}'
+     --header 'Authorization: Bearer <YOUR_API_KEY>'
 ```
 
 #### Request parameters
@@ -1610,7 +1629,7 @@ curl --request GET \
 - `page`: (*Filter parameter*), `integer`  
   Specifies the page on which the chat assistants will be displayed. Defaults to `1`.
 - `page_size`: (*Filter parameter*), `integer`  
-  The number of chat assistants on each page. Defaults to `1024`.
+  The number of chat assistants on each page. Defaults to `30`.
 - `orderby`: (*Filter parameter*), `string`  
   The attribute by which the results are sorted. Available options:
   - `create_time` (default)
@@ -1652,7 +1671,7 @@ Success:
                 "empty_response": "Sorry! No relevant content was found in the knowledge base!",
                 "keywords_similarity_weight": 0.3,
                 "opener": "Hi! I'm your assistant, what can I do for you?",
-                "prompt": "You are an intelligent assistant. Please summarize the content of the knowledge base to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence \"The answer you are looking for is not found in the knowledge base!\" Answers need to consider chat history.\n      Here is the knowledge base:\n      {knowledge}\n      The above is the knowledge base.",
+                "prompt": "You are an intelligent assistant. Please summarize the content of the knowledge base to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence \"The answer you are looking for is not found in the knowledge base!\" Answers need to consider chat history.\n",
                 "rerank_model": "",
                 "similarity_threshold": 0.2,
                 "top_n": 6,
@@ -1695,7 +1714,7 @@ Creates a chat session.
 - URL: `/api/v1/chats/{chat_id}/sessions`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"name"`: `string`
 
@@ -1705,7 +1724,7 @@ Creates a chat session.
 curl --request POST \
      --url http://{address}/api/v1/chats/{chat_id}/sessions \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "name": "new session"
@@ -1767,16 +1786,17 @@ Updates a chat session.
 - URL: `/api/v1/chats/{chat_id}/sessions/{session_id}`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
-  - `"name`: string
+  - `"name`: `string`
 
 #### Request example
+
 ```bash
 curl --request PUT \
      --url http://{address}/api/v1/chats/{chat_id}/sessions/{session_id} \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data '
      {
           "name": "<REVISED_SESSION_NAME_HERE>"
@@ -1824,14 +1844,14 @@ Lists sessions associated with a specified chat assistant.
 - Method: GET
 - URL: `/api/v1/chats/{chat_id}/sessions?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&name={session_name}&id={session_id}`
 - Headers:
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 
 #### Request example
 
 ```bash
 curl --request GET \
      --url http://{address}/api/v1/chats/{chat_id}/sessions?page={page}&page_size={page_size}&orderby={orderby}&desc={desc}&name={session_name}&id={session_id} \
-     --header 'Authorization: Bearer {YOUR_API_KEY}'
+     --header 'Authorization: Bearer <YOUR_API_KEY>'
 ```
 
 #### Request Parameters
@@ -1841,7 +1861,7 @@ curl --request GET \
 - `page`: (*Filter parameter*), `integer`  
   Specifies the page on which the sessions will be displayed. Defaults to `1`.
 - `page_size`: (*Filter parameter*), `integer`  
-  The number of sessions on each page. Defaults to `1024`.
+  The number of sessions on each page. Defaults to `30`.
 - `orderby`: (*Filter parameter*), `string`  
   The field by which sessions should be sorted. Available options:  
   - `create_time` (default)
@@ -1903,7 +1923,7 @@ Deletes sessions by ID.
 - URL: `/api/v1/chats/{chat_id}/sessions`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"ids"`: `list[string]`
 
@@ -1914,7 +1934,7 @@ Deletes sessions by ID.
 curl --request DELETE \
      --url http://{address}/api/v1/chats/{chat_id}/sessions \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bear {YOUR_API_KEY}' \
+     --header 'Authorization: Bear <YOUR_API_KEY>' \
      --data '
      {
           "ids": ["test_1", "test_2"]
@@ -1961,7 +1981,7 @@ Asks a question to start an AI-powered conversation.
 - URL: `/api/v1/chats/{chat_id}/completions`
 - Headers:
   - `'content-Type: application/json'`
-  - `'Authorization: Bearer {YOUR_API_KEY}'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
 - Body:
   - `"question"`: `string`
   - `"stream"`: `boolean`
@@ -1973,7 +1993,7 @@ Asks a question to start an AI-powered conversation.
 curl --request POST \
      --url http://{address}/api/v1/chats/{chat_id}/completions \
      --header 'Content-Type: application/json' \
-     --header 'Authorization: Bearer {YOUR_API_KEY}' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
      --data-binary '
      {
           "question": "What is RAGFlow?",
@@ -1998,59 +2018,54 @@ curl --request POST \
 
 Success:
 
-```json
-data: {
+```text
+data:{
     "code": 0,
     "data": {
-        "answer": "I am an intelligent assistant designed to help you with your inquiries. I can provide",
+        "answer": "I am an intelligent assistant designed to help answer questions by summarizing content from a",
         "reference": {},
         "audio_binary": null,
-        "id": "d8e5ebb6-6b52-4fd1-bd02-35b52ba3acaa",
-        "session_id": "e14344d08d1a11efb6210242ac120004"
+        "id": "a84c5dd4-97b4-4624-8c3b-974012c8000d",
+        "session_id": "82b0ab2a9c1911ef9d870242ac120006"
     }
 }
-
-data: {
+data:{
     "code": 0,
     "data": {
-        "answer": "I am an intelligent assistant designed to help you with your inquiries. I can provide information, answer questions, and assist with tasks based on the knowledge available to me",
+        "answer": "I am an intelligent assistant designed to help answer questions by summarizing content from a knowledge base. My responses are based on the information available in the knowledge base and",
         "reference": {},
         "audio_binary": null,
-        "id": "d8e5ebb6-6b52-4fd1-bd02-35b52ba3acaa",
-        "session_id": "e14344d08d1a11efb6210242ac120004"
+        "id": "a84c5dd4-97b4-4624-8c3b-974012c8000d",
+        "session_id": "82b0ab2a9c1911ef9d870242ac120006"
     }
 }
-
-data: {
+data:{
     "code": 0,
     "data": {
-        "answer": "I am an intelligent assistant designed to help you with your inquiries. I can provide information, answer questions, and assist with tasks based on the knowledge available to me. How can I assist you today?",
+        "answer": "I am an intelligent assistant designed to help answer questions by summarizing content from a knowledge base. My responses are based on the information available in the knowledge base and any relevant chat history.",
         "reference": {},
         "audio_binary": null,
-        "id": "d8e5ebb6-6b52-4fd1-bd02-35b52ba3acaa",
-        "session_id": "e14344d08d1a11efb6210242ac120004"
+        "id": "a84c5dd4-97b4-4624-8c3b-974012c8000d",
+        "session_id": "82b0ab2a9c1911ef9d870242ac120006"
     }
 }
-
-data: {
+data:{
     "code": 0,
     "data": {
-        "answer": "I am an intelligent assistant designed to help you with your inquiries. I can provide information, answer questions, and assist with tasks based on the knowledge available to me ##0$$. How can I assist you today?",
+        "answer": "I am an intelligent assistant designed to help answer questions by summarizing content from a knowledge base ##0$$. My responses are based on the information available in the knowledge base and any relevant chat history.",
         "reference": {
-            "total": 8,
+            "total": 1,
             "chunks": [
                 {
-                    "chunk_id": "895d34de762e674b43e8613c6fb54c6d",
-                    "content_ltks": "xxxx\r\n\r\n\"\"\"\r\nyou are an intellig assistant. pleas summar the content of the knowledg base to answer the question. pleas list thedata in the knowledg base and answer in detail. when all knowledg base content is irrelev to the question , your answer must includ the sentenc\"the answer you are lookfor isnot found in the knowledg base!\" answer needto consid chat history.\r\n here is the knowledg base:\r\n{ knowledg}\r\nthe abov is the knowledg base.\r\n\"\"\"\r\n1\r\n 2\r\n 3\r\n 4\r\n 5\r\n 6\r\nxxxx ",
-                    "content_with_weight": "xxxx\r\n\r\n\"\"\"\r\nYou are an intelligent assistant. Please summarize the content of the knowledge base to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence \"The answer you are looking for is not found in the knowledge base!\" Answers need to consider chat history.\r\n      Here is the knowledge base:\r\n      {knowledge}\r\n      The above is the knowledge base.\r\n\"\"\"\r\n1\r\n2\r\n3\r\n4\r\n5\r\n6\r\nxxxx\r\n\r\n\"\"\"\r\nxxxx",
-                    "doc_id": "5c5999ec7be811ef9cab0242ac120005",
-                    "docnm_kwd": "1.txt",
-                    "kb_id": "c7ee74067a2c11efb21c0242ac120006",
-                    "important_kwd": [],
-                    "img_id": "",
-                    "similarity": 0.4442746624416507,
-                    "vector_similarity": 0.3843936320913369,
-                    "term_similarity": 0.4699379611632138,
+                    "id": "faf26c791128f2d5e821f822671063bd",
+                    "content": "xxxxxxxx",
+                    "document_id": "dd58f58e888511ef89c90242ac120006",
+                    "document_name": "1.txt",
+                    "dataset_id": "8e83e57a884611ef9d760242ac120006",
+                    "image_id": "",
+                    "similarity": 0.7,
+                    "vector_similarity": 0.0,
+                    "term_similarity": 1.0,
                     "positions": [
                         ""
                     ]
@@ -2059,17 +2074,16 @@ data: {
             "doc_aggs": [
                 {
                     "doc_name": "1.txt",
-                    "doc_id": "5c5999ec7be811ef9cab0242ac120005",
+                    "doc_id": "dd58f58e888511ef89c90242ac120006",
                     "count": 1
                 }
             ]
         },
-        "prompt": "xxxx\r\n\r\n\"\"\"\r\nYou are an intelligent assistant. Please summarize the content of the knowledge base to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence \"The answer you are looking for is not found in the knowledge base!\" Answers need to consider chat history.\r\n      Here is the knowledge base:\r\n      {knowledge}\r\n      The above is the knowledge base.\r\n\"\"\"\r\n1\r\n2\r\n3\r\n4\r\n5\r\n6\r\nxxxx\n\n### Query:\nwho are you,please answer me in English\n\n### Elapsed\n  - Retrieval: 332.2 ms\n  - LLM: 2972.1 ms",
-        "id": "d8e5ebb6-6b52-4fd1-bd02-35b52ba3acaa",
-        "session_id": "e14344d08d1a11efb6210242ac120004"
+        "prompt": "xxxxxxxxxxx",
+        "id": "a84c5dd4-97b4-4624-8c3b-974012c8000d",
+        "session_id": "82b0ab2a9c1911ef9d870242ac120006"
     }
 }
-
 data:{
     "code": 0,
     "data": true
@@ -2082,5 +2096,245 @@ Failure:
 {
     "code": 102,
     "message": "Please input your question."
+}
+```
+
+## Create agent session
+
+**POST** `/api/v1/agents/{agent_id}/sessions`
+
+Creates an agent session.
+
+### Request
+
+- Method: POST
+- URL: `/api/v1/agents/{agent_id}/sessions`
+- Headers:
+  - `'content-Type: application/json'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
+- Body:
+
+#### Request example
+
+```bash
+curl --request POST \
+     --url http://{address}/api/v1/agents/{agent_id}/sessions \
+     --header 'Content-Type: application/json' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
+     --data '{
+     }'
+```
+
+#### Request parameters
+
+- `agent_id`: (*Path parameter*)
+  The ID of the associated agent assistant.
+
+### Response
+
+Success:
+
+```json
+{
+    "code": 0,
+    "data": {
+        "agent_id": "2e45b5209c1011efa3e90242ac120006",
+        "id": "7869e9e49c1711ef92840242ac120006",
+        "message": [
+            {
+                "content": "Hello! I am the HR responsible for recruitment at Infineon. I learned that you are an expert in this field, and I took the liberty of reaching out to you. There is an opportunity I would like to share with you. RAGFlow is currently looking for a senior engineer for your position. I was wondering if you might be interested?",
+                "role": "assistant"
+            }
+        ],
+        "source": "agent",
+        "user_id": ""
+    }
+}
+```
+
+Failure:
+
+```json
+{
+    "code": 102,
+    "message": "Agent not found."
+}
+```
+
+
+
+## Converse through agent
+
+**POST** `/api/v1/agents/{agent_id}/completions`  
+#######  
+Asks a question to start an AI-powered conversation.
+
+### Request
+
+- Method: POST
+- URL: `/api/v1/agents/{agent_id}/completions`
+- Headers:
+  - `'content-Type: application/json'`
+  - `'Authorization: Bearer <YOUR_API_KEY>'`
+- Body:
+  - `"question"`: `string`
+  - `"stream"`: `boolean`
+  - `"session_id"`: `string`
+
+#### Request example
+
+```bash
+curl --request POST \
+     --url http://{address}/api/v1/agents/{agent_id}/completions \
+     --header 'Content-Type: application/json' \
+     --header 'Authorization: Bearer <YOUR_API_KEY>' \
+     --data-binary '
+     {
+          "question": "What is RAGFlow?",
+          "stream": true
+     }'
+```
+
+#### Request Parameters
+
+- `agent_id`: (*Path parameter*)  
+  The ID of the associated agent assistant.
+- `"question"`: (*Body Parameter*), `string` *Required*  
+  The question to start an AI-powered conversation.
+- `"stream"`: (*Body Parameter*), `boolean`  
+  Indicates whether to output responses in a streaming way:
+  - `true`: Enable streaming.
+  - `false`: Disable streaming (default).
+- `"session_id"`: (*Body Parameter*)  
+  The ID of session. If it is not provided, a new session will be generated.
+
+### Response
+
+Success:
+
+```text
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello!",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello! How",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello! How can",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello! How can I",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello! How can I assist",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello! How can I assist you",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello! How can I assist you today",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello! How can I assist you today?",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": {
+        "answer": "Hello! How can I assist you today?",
+        "reference": [],
+        "id": "7ed5c2e4-aa28-4397-bbed-59664a332aa0",
+        "session_id": "ce1b4fa89c1811ef85720242ac120006"
+    }
+}
+data:{
+    "code": 0,
+    "message": "",
+    "data": true
+}
+```
+
+Failure:
+
+```json
+{
+    "code": 102,
+    "message": "`question` is required."
 }
 ```

@@ -1,10 +1,15 @@
-# DRAFT Python API Reference
+---
+sidebar_position: 2
+slug: /python_api_reference
+---
 
-**THE API REFERENCES BELOW ARE STILL UNDER DEVELOPMENT.**
+# Python API Reference
+
+A complete reference for RAGFlow's Python APIs. Before proceeding, please ensure you [have your RAGFlow API key ready for authentication](../guides/develop/acquire_ragflow_api_key.md).
 
 ---
 
-:::tip NOTE
+:::tip API GROUPING
 Dataset Management
 :::
 
@@ -53,7 +58,7 @@ A brief description of the dataset to create. Defaults to `""`.
 
 The language setting of the dataset to create. Available options:
 
-- `"English"` (Default)
+- `"English"` (default)
 - `"Chinese"`
 
 #### permission
@@ -74,17 +79,38 @@ The chunking method of the dataset to create. Available options:
 - `"presentation"`: Presentation
 - `"picture"`: Picture
 - `"one"`: One
-- `"knowledge_graph"`: Knowledge Graph
+- `"knowledge_graph"`: Knowledge Graph  
+  Ensure your LLM is properly configured on the **Settings** page before selecting this. Please also note that Knowledge Graph consumes a large number of Tokens!
 - `"email"`: Email
 
 #### parser_config
 
-The parser configuration of the dataset. A `ParserConfig` object contains the following attributes:
+The parser configuration of the dataset. A `ParserConfig` object's attributes vary based on the selected `chunk_method`:
 
-- `chunk_token_count`: Defaults to `128`.
-- `layout_recognize`: Defaults to `True`.
-- `delimiter`: Defaults to `"\n!?。；！？"`.
-- `task_page_size`: Defaults to `12`.
+- `chunk_method`=`"naive"`:  
+  `{"chunk_token_num":128,"delimiter":"\\n!?;。；！？","html4excel":False,"layout_recognize":True,"raptor":{"user_raptor":False}}`.
+- `chunk_method`=`"qa"`:  
+  `{"raptor": {"user_raptor": False}}`
+- `chunk_method`=`"manuel"`:  
+  `{"raptor": {"user_raptor": False}}`
+- `chunk_method`=`"table"`:  
+  `None`
+- `chunk_method`=`"paper"`:  
+  `{"raptor": {"user_raptor": False}}`
+- `chunk_method`=`"book"`:  
+  `{"raptor": {"user_raptor": False}}`
+- `chunk_method`=`"laws"`:  
+  `{"raptor": {"user_raptor": False}}`
+- `chunk_method`=`"picture"`:  
+  `None`
+- `chunk_method`=`"presentation"`:  
+  `{"raptor": {"user_raptor": False}}`
+- `chunk_method`=`"one"`:  
+  `None`
+- `chunk_method`=`"knowledge-graph"`:  
+  `{"chunk_token_num":128,"delimiter":"\\n!?;。；！？","entity_types":["organization","person","location","event","time"]}`
+- `chunk_method`=`"email"`:  
+  `None`
 
 ### Returns
 
@@ -134,7 +160,7 @@ rag_object.delete_datasets(ids=["id_1","id_2"])
 ```python
 RAGFlow.list_datasets(
     page: int = 1, 
-    page_size: int = 1024, 
+    page_size: int = 30, 
     orderby: str = "create_time", 
     desc: bool = True,
     id: str = None,
@@ -152,7 +178,7 @@ Specifies the page on which the datasets will be displayed. Defaults to `1`.
 
 #### page_size: `int`
 
-The number of datasets on each page. Defaults to `1024`.
+The number of datasets on each page. Defaults to `30`.
 
 #### orderby: `str`
 
@@ -224,8 +250,9 @@ A dictionary representing the attributes to update, with the following keys:
   - `"presentation"`: Presentation
   - `"picture"`: Picture
   - `"one"`: One
-  - `"knowledge_graph"`: Knowledge Graph
   - `"email"`: Email
+  - `"knowledge_graph"`: Knowledge Graph  
+    Ensure your LLM is properly configured on the **Settings** page before selecting this. Please also note that Knowledge Graph consumes a large number of Tokens!
 
 ### Returns
 
@@ -296,11 +323,6 @@ Updates configurations for the current document.
 A dictionary representing the attributes to update, with the following keys:
 
 - `"display_name"`: `str` The name of the document to update.
-- `"parser_config"`: `dict[str, Any]` The parsing configuration for the document:
-  - `"chunk_token_count"`: Defaults to `128`.
-  - `"layout_recognize"`: Defaults to `True`.
-  - `"delimiter"`: Defaults to `'\n!?。；！？'`.
-  - `"task_page_size"`: Defaults to `12`.
 - `"chunk_method"`: `str` The parsing method to apply to the document.
   - `"naive"`: General
   - `"manual`: Manual
@@ -312,8 +334,34 @@ A dictionary representing the attributes to update, with the following keys:
   - `"presentation"`: Presentation
   - `"picture"`: Picture
   - `"one"`: One
-  - `"knowledge_graph"`: Knowledge Graph
+  - `"knowledge_graph"`: Knowledge Graph  
+    Ensure your LLM is properly configured on the **Settings** page before selecting this. Please also note that Knowledge Graph consumes a large number of Tokens!
   - `"email"`: Email
+- `"parser_config"`: `dict[str, Any]` The parsing configuration for the document. Its attributes vary based on the selected `"chunk_method"`:
+  - `"chunk_method"`=`"naive"`:  
+    `{"chunk_token_num":128,"delimiter":"\\n!?;。；！？","html4excel":False,"layout_recognize":True,"raptor":{"user_raptor":False}}`.
+  - `chunk_method`=`"qa"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"manuel"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"table"`:  
+    `None`
+  - `chunk_method`=`"paper"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"book"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"laws"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"presentation"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"picture"`:  
+    `None`
+  - `chunk_method`=`"one"`:  
+    `None`
+  - `chunk_method`=`"knowledge-graph"`:  
+    `{"chunk_token_num":128,"delimiter":"\\n!?;。；！？","entity_types":["organization","person","location","event","time"]}`
+  - `chunk_method`=`"email"`:  
+    `None`
 
 ### Returns
 
@@ -366,7 +414,7 @@ print(doc)
 ## List documents
 
 ```python
-Dataset.list_documents(id:str =None, keywords: str=None, offset: int=1, limit:int = 1024,order_by:str = "create_time", desc: bool = True) -> list[Document]
+Dataset.list_documents(id:str =None, keywords: str=None, page: int=1, page_size:int = 30, order_by:str = "create_time", desc: bool = True) -> list[Document]
 ```
 
 Lists documents in the current dataset.
@@ -381,13 +429,13 @@ The ID of the document to retrieve. Defaults to `None`.
 
 The keywords used to match document titles. Defaults to `None`.
 
-#### offset: `int`
+#### page: `int`
 
-The starting index for the documents to retrieve. Typically used in conjunction with `limit`. Defaults to `0`.
+Specifies the page on which the documents will be displayed. Defaults to `1`.
 
-#### limit: `int`
+#### page_size: `int`
 
-The maximum number of documents to retrieve. Defaults to `1024`.
+The maximum number of documents on each page. Defaults to `30`.
 
 #### orderby: `str`
 
@@ -412,7 +460,6 @@ A `Document` object contains the following attributes:
 - `thumbnail`: The thumbnail image of the document. Defaults to `None`.
 - `dataset_id`: The dataset ID associated with the document. Defaults to `None`.
 - `chunk_method` The chunk method name. Defaults to `"naive"`.
-- `parser_config`: `ParserConfig` Configuration object for the parser. Defaults to `{"pages": [[1, 1000000]]}`.
 - `source_type`: The source type of the document. Defaults to `"local"`.
 - `type`: Type or category of the document. Defaults to `""`. Reserved for future use.
 - `created_by`: `str` The creator of the document. Defaults to `""`.
@@ -430,6 +477,31 @@ A `Document` object contains the following attributes:
   - `"DONE"`
   - `"FAIL"`
 - `status`: `str` Reserved for future use.
+- `parser_config`: `ParserConfig` Configuration object for the parser. Its attributes vary based on the selected `chunk_method`:
+  - `chunk_method`=`"naive"`:  
+    `{"chunk_token_num":128,"delimiter":"\\n!?;。；！？","html4excel":False,"layout_recognize":True,"raptor":{"user_raptor":False}}`.
+  - `chunk_method`=`"qa"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"manuel"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"table"`:  
+    `None`
+  - `chunk_method`=`"paper"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"book"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"laws"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"presentation"`:  
+    `{"raptor": {"user_raptor": False}}`
+  - `chunk_method`=`"picure"`:  
+    `None`
+  - `chunk_method`=`"one"`:  
+    `None`
+  - `chunk_method`=`"knowledge-graph"`:  
+    `{"chunk_token_num":128,"delimiter": "\\n!?;。；！？","entity_types":["organization","person","location","event","time"]}`
+  - `chunk_method`=`"email"`:  
+    `None`
 
 ### Examples
 
@@ -442,7 +514,7 @@ dataset = rag_object.create_dataset(name="kb_1")
 filename1 = "~/ragflow.txt"
 blob = open(filename1 , "rb").read()
 dataset.upload_documents([{"name":filename1,"blob":blob}])
-for doc in dataset.list_documents(keywords="rag", offset=0, limit=12):
+for doc in dataset.list_documents(keywords="rag", page=0, page_size=12):
     print(doc)
 ```
 
@@ -618,7 +690,7 @@ chunk = doc.add_chunk(content="xxxxxxx")
 ## List chunks
 
 ```python
-Document.list_chunks(keywords: str = None, offset: int = 1, limit: int = 1024, id : str = None) -> list[Chunk]
+Document.list_chunks(keywords: str = None, page: int = 1, page_size: int = 30, id : str = None) -> list[Chunk]
 ```
 
 Lists chunks in the current document.
@@ -629,13 +701,13 @@ Lists chunks in the current document.
 
 The keywords used to match chunk content. Defaults to `None`
 
-#### offset: `int`
+#### page: `int`
 
-The starting index for the chunks to retrieve. Defaults to `1`.
+Specifies the page on which the chunks will be displayed. Defaults to `1`.
 
-#### limit: `int`
+#### page_size: `int`
 
-The maximum number of chunks to retrieve.  Default: `1024`
+The maximum number of chunks on each page. Defaults to `30`.
 
 #### id: `str`
 
@@ -655,7 +727,7 @@ rag_object = RAGFlow(api_key="<YOUR_API_KEY>", base_url="http://<YOUR_BASE_URL>:
 dataset = rag_object.list_datasets("123")
 dataset = dataset[0]
 dataset.async_parse_documents(["wdfxb5t547d"])
-for chunk in doc.list_chunks(keywords="rag", offset=0, limit=12):
+for chunk in doc.list_chunks(keywords="rag", page=0, page_size=12):
     print(chunk)
 ```
 
@@ -740,7 +812,7 @@ chunk.update({"content":"sdfx..."})
 ## Retrieve chunks
 
 ```python
-RAGFlow.retrieve(question:str="", dataset_ids:list[str]=None, document_ids=list[str]=None, offset:int=1, limit:int=1024, similarity_threshold:float=0.2, vector_similarity_weight:float=0.3, top_k:int=1024,rerank_id:str=None,keyword:bool=False,higlight:bool=False) -> list[Chunk]
+RAGFlow.retrieve(question:str="", dataset_ids:list[str]=None, document_ids=list[str]=None, page:int=1, page_size:int=30, similarity_threshold:float=0.2, vector_similarity_weight:float=0.3, top_k:int=1024,rerank_id:str=None,keyword:bool=False,higlight:bool=False) -> list[Chunk]
 ```
 
 Retrieves chunks from specified datasets.
@@ -759,13 +831,13 @@ The IDs of the datasets to search. Defaults to `None`. If you do not set this ar
 
 The IDs of the documents to search. Defaults to `None`. You must ensure all selected documents use the same embedding model. Otherwise, an error will occur. If you do not set this argument, ensure that you set `dataset_ids`.
 
-#### offset: `int`
+#### page: `int`
 
 The starting index for the documents to retrieve. Defaults to `1`.
 
-#### limit: `int`
+#### page_size: `int`
 
-The maximum number of chunks to retrieve. Defaults to `1024`.
+The maximum number of chunks to retrieve. Defaults to `30`.
 
 #### Similarity_threshold: `float`
 
@@ -818,7 +890,7 @@ doc = doc[0]
 dataset.async_parse_documents([doc.id])
 for c in rag_object.retrieve(question="What's ragflow?", 
              dataset_ids=[dataset.id], document_ids=[doc.id], 
-             offset=1, limit=30, similarity_threshold=0.2, 
+             page=1, page_size=30, similarity_threshold=0.2, 
              vector_similarity_weight=0.3,
              top_k=1024
              ):
@@ -893,10 +965,7 @@ Instructions for the LLM to follow.  A `Prompt` object contains the following at
 - `empty_response`: `str` If nothing is retrieved in the dataset for the user's question, this will be used as the response. To allow the LLM to improvise when nothing is found, leave this blank. Defaults to `None`.
 - `opener`: `str` The opening greeting for the user. Defaults to `"Hi! I am your assistant, can I help you?"`.
 - `show_quote`: `bool` Indicates whether the source of text should be displayed. Defaults to `True`.
-- `prompt`: `str` The prompt content. Defaults to `You are an intelligent assistant. Please summarize the content of the dataset to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence "The answer you are looking for is not found in the knowledge base!" Answers need to consider chat history.
-      Here is the knowledge base:
-      {knowledge}
-      The above is the knowledge base.`
+- `prompt`: `str` The prompt content.
 
 ### Returns
 
@@ -954,10 +1023,7 @@ A dictionary representing the attributes to update, with the following keys:
   - `"empty_response"`: `str` If nothing is retrieved in the dataset for the user's question, this will be used as the response. To allow the LLM to improvise when nothing is retrieved, leave this blank. Defaults to `None`.
   - `"opener"`: `str` The opening greeting for the user. Defaults to `"Hi! I am your assistant, can I help you?"`.
   - `"show_quote`: `bool` Indicates whether the source of text should be displayed Defaults to `True`.
-  - `"prompt"`: `str` The prompt content. Defaults to `You are an intelligent assistant. Please summarize the content of the knowledge base to answer the question. Please list the data in the knowledge base and answer in detail. When all knowledge base content is irrelevant to the question, your answer must include the sentence "The answer you are looking for is not found in the knowledge base!" Answers need to consider chat history.
-      Here is the knowledge base:
-      {knowledge}
-      The above is the knowledge base.`.
+  - `"prompt"`: `str` The prompt content.
 
 ### Returns
 
@@ -1013,7 +1079,7 @@ rag_object.delete_chats(ids=["id_1","id_2"])
 ```python
 RAGFlow.list_chats(
     page: int = 1, 
-    page_size: int = 1024, 
+    page_size: int = 30, 
     orderby: str = "create_time", 
     desc: bool = True,
     id: str = None,
@@ -1031,7 +1097,7 @@ Specifies the page on which the chat assistants will be displayed. Defaults to `
 
 #### page_size: `int`
 
-The number of chat assistants on each page. Defaults to `1024`.
+The number of chat assistants on each page. Defaults to `30`.
 
 #### orderby: `str`
 
@@ -1151,7 +1217,7 @@ session.update({"name": "updated_name"})
 ```python
 Chat.list_sessions(
     page: int = 1, 
-    page_size: int = 1024, 
+    page_size: int = 30, 
     orderby: str = "create_time", 
     desc: bool = True,
     id: str = None,
@@ -1169,7 +1235,7 @@ Specifies the page on which the sessions will be displayed. Defaults to `1`.
 
 #### page_size: `int`
 
-The number of sessions on each page. Defaults to `1024`.
+The number of sessions on each page. Defaults to `30`.
 
 #### orderby: `str`
 
@@ -1321,6 +1387,117 @@ while True:
     
     cont = ""
     for ans in session.ask(question, stream=True):
-        print(answer.content[len(cont):], end='', flush=True)
-        cont = answer.content
+        print(ans.content[len(cont):], end='', flush=True)
+        cont = ans.content
+```
+---
+
+## Create agent session
+
+```python
+Agent.create_session(id,rag) -> Session
+```
+
+Creates a agemt session.
+
+### Returns
+
+- Success: A `Session` object containing the following attributes:
+  - `id`: `str` The auto-generated unique identifier of the created session.
+  - `message`: `list[Message]` The messages of the created session assistant. Default: `[{"role": "assistant", "content": "Hi! I am your assistant，can I help you?"}]`
+  - `agnet_id`: `str` The ID of the associated agent assistant.
+- Failure: `Exception`
+
+### Examples
+
+```python
+from ragflow_sdk import RAGFlow
+
+rag_object = RAGFlow(api_key="<YOUR_API_KEY>", base_url="http://<YOUR_BASE_URL>:9380")
+AGENT_ID = "AGENT_ID"
+session = create_session(AGENT_ID,rag_object)
+```
+---
+
+## Converse through agent
+
+```python
+Session.ask(question: str, stream: bool = False) -> Optional[Message, iter[Message]]
+```
+
+Asks a question to start an AI-powered conversation.
+
+### Parameters
+
+#### question: `str` *Required*
+
+The question to start an AI-powered conversation.
+
+#### stream: `bool`
+
+Indicates whether to output responses in a streaming way:
+
+- `True`: Enable streaming.
+- `False`: Disable streaming (default).
+
+### Returns
+
+- A `Message` object containing the response to the question if `stream` is set to `False`
+- An iterator containing multiple `message` objects (`iter[Message]`) if `stream` is set to `True`
+
+The following shows the attributes of a `Message` object:
+
+#### id: `str`
+
+The auto-generated message ID.
+
+#### content: `str`
+
+The content of the message. Defaults to `"Hi! I am your assistant, can I help you?"`.
+
+#### reference: `list[Chunk]`
+
+A list of `Chunk` objects representing references to the message, each containing the following attributes:
+
+- `id` `str`  
+  The chunk ID.
+- `content` `str`  
+  The content of the chunk.
+- `image_id` `str`  
+  The ID of the snapshot of the chunk. Applicable only when the source of the chunk is an image, PPT, PPTX, or PDF file.
+- `document_id` `str`  
+  The ID of the referenced document.
+- `document_name` `str`  
+  The name of the referenced document.
+- `position` `list[str]`  
+  The location information of the chunk within the referenced document.
+- `dataset_id` `str`  
+  The ID of the dataset to which the referenced document belongs.
+- `similarity` `float`  
+  A composite similarity score of the chunk ranging from `0` to `1`, with a higher value indicating greater similarity. It is the weighted sum of `vector_similarity` and `term_similarity`.
+- `vector_similarity` `float`  
+  A vector similarity score of the chunk ranging from `0` to `1`, with a higher value indicating greater similarity between vector embeddings.
+- `term_similarity` `float`  
+  A keyword similarity score of the chunk ranging from `0` to `1`, with a higher value indicating greater similarity between keywords.
+
+### Examples
+
+```python
+from ragflow_sdk import RAGFlow,Agent
+
+rag_object = RAGFlow(api_key="<YOUR_API_KEY>", base_url="http://<YOUR_BASE_URL>:9380")
+AGENT_id = "AGENT_ID"
+session = Agent.create_session(AGENT_id,rag_object)    
+
+print("\n==================== Miss R =====================\n")
+print("Hello. What can I do for you?")
+
+while True:
+    question = input("\n==================== User =====================\n> ")
+    print("\n==================== Miss R =====================\n")
+    
+    cont = ""
+    for ans in session.ask(question, stream=True):
+        print(ans.content[len(cont):], end='', flush=True)
+        cont = ans.content
 ```

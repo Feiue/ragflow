@@ -57,7 +57,7 @@ class Chat(Base):
             return Session(self.rag, res['data'])
         raise Exception(res["message"])
 
-    def list_sessions(self,page: int = 1, page_size: int = 1024, orderby: str = "create_time", desc: bool = True,
+    def list_sessions(self,page: int = 1, page_size: int = 30, orderby: str = "create_time", desc: bool = True,
                       id: str = None, name: str = None) -> List[Session]:
         res = self.get(f'/chats/{self.id}/sessions',{"page": page, "page_size": page_size, "orderby": orderby, "desc": desc, "id": id, "name": name} )
         res = res.json()
@@ -68,7 +68,7 @@ class Chat(Base):
             return result_list
         raise Exception(res["message"])
 
-    def delete_sessions(self,ids):
+    def delete_sessions(self,ids:List[str]=None):
         res = self.rm(f"/chats/{self.id}/sessions", {"ids": ids})
         res = res.json()
         if res.get("code") != 0:
